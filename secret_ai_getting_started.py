@@ -1,13 +1,13 @@
-from claive_sdk.claive import ChatClaive
-from claive_sdk.secret import SecretClaive
+from secret_ai_sdk.secret_ai import ChatSecret
+from secret_ai_sdk.secret import Secret
 
-secret_client = SecretClaive()
+secret_client = Secret()
 # Get all the models registered with the smart contracts
 models = secret_client.get_models()
 # For the chosen model you may obtain a list of LLM instance URLs to connect to
 urls = secret_client.get_urls(model=models[0])
 # You previosly exported the env var CLAIVE_AI_API_KEY=YOUR-API-KEY
-claive_llm = ChatClaive(
+secret_ai_llm = ChatSecret(
 base_url=urls[0], # in this case we choose to access the first url in the list
 
 model='llama3.1:70b', # your previosly selected model
@@ -22,5 +22,5 @@ messages = [
 ("human", "I miss my cat."),
 ]
 # Invoke the llm
-response = claive_llm.invoke(messages, stream=False)
+response = secret_ai_llm.invoke(messages, stream=False)
 print(response.content)
