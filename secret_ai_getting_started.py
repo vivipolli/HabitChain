@@ -10,7 +10,8 @@ urls = secret_client.get_urls(model=models[0])
 secret_ai_llm = ChatSecret(
 base_url=urls[0], # in this case we choose to access the first url in the list
 
-model='llama3.1:70b', # your previosly selected model
+model=models[0], # your selected model
+
 temperature=1.
 )
 # Define your messages you want to send to the confidential LLM for processing
