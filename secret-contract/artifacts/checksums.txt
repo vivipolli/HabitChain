@@ -1,0 +1,1 @@
+ff0041f15ab0f2bcc05ef0f6ee4806fedb76d9180f32c0f3098ee42d5f95bebf  secret_contract.wasm

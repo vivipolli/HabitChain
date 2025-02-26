@@ -1,0 +1,1 @@
+1d2254e30e1e4b00c48f49ba90c4f0df4f01a12486517708f49f509be87f148a  ./target/wasm32-unknown-unknown/release/secret_contract.wasm
