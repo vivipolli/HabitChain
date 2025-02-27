@@ -162,21 +162,23 @@ export function HabitsTracker() {
             </div>
 
             <div className="flex justify-between items-center mb-8 border-b pb-4">
-                <div className="flex space-x-2">
-                    {daysOfWeek.map((day) => (
-                        <button
-                            key={day.index}
-                            onClick={() => setSelectedDay(day.index)}
-                            disabled={isCheckboxDisabled(day.index)}
-                            className={`
-                                px-4 py-2 rounded-lg transition-colors
-                                ${selectedDay === day.index ? 'bg-sky-600 text-white' : 'bg-gray-100 text-gray-700'}
-                                ${isCheckboxDisabled(day.index) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-sky-500 hover:text-white'}
-                            `}
-                        >
-                            {day.name}
-                        </button>
-                    ))}
+                <div className="overflow-x-auto pb-2 -mx-2 px-2">
+                    <div className="flex space-x-2 min-w-max">
+                        {daysOfWeek.map((day) => (
+                            <button
+                                key={day.index}
+                                onClick={() => setSelectedDay(day.index)}
+                                disabled={isCheckboxDisabled(day.index)}
+                                className={`
+                                    px-4 py-2 rounded-lg transition-colors
+                                    ${selectedDay === day.index ? 'bg-sky-600 text-white' : 'bg-gray-100 text-gray-700'}
+                                    ${isCheckboxDisabled(day.index) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-sky-500 hover:text-white'}
+                                `}
+                            >
+                                {day.name}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
