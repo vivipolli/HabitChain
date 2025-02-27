@@ -57,7 +57,7 @@ We leverage **Secret Network** and **Secret AI SDK** to create a secure platform
 
 # 🚀 Technical Setup
 
-## 📋 Prerequisites
+## Prerequisites
 
 ### System Requirements
 
