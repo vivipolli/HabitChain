@@ -25,7 +25,7 @@ INSTRUCTIONS:
 - Scientific basis: reference or evidence supporting this habit
 
 RESPONSE FORMAT:
-[Brief behavioral analysis in 2-3 paragraphs]
+[Behavioral analysis, more than 3 paragraphs]
 
 SUGGESTED HABITS:
 
