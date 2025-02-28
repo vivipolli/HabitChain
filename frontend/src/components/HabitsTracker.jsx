@@ -23,45 +23,39 @@ export function HabitsTracker() {
                     return
                 }
 
-                // Primeiro, tenta pegar do analysisResults do localStorage
                 let analysisResults = localStorage.getItem('analysisResults')
-                let parsedContent
+                let parsedContent = null
 
                 if (analysisResults) {
                     try {
-                        // Parse do JSON string externo
-                        const parsedResults = JSON.parse(analysisResults)
-                        parsedContent = parsedResults
+                        parsedContent = JSON.parse(analysisResults)
+                        // DEBUG: Vamos ver o que foi parseado
+                        console.log('Parsed content:', parsedContent)
+                        console.log('Has recommended_habits?', !!parsedContent?.recommended_habits)
                     } catch (err) {
                         console.error('Error parsing analysisResults:', err)
                     }
                 }
 
-                // Se não encontrou no analysisResults, tenta no analyses_patientId
-                if (!parsedContent) {
+                // Se não encontrou no analysisResults ou não tem recommended_habits
+                if (!parsedContent?.recommended_habits) {
+                    console.log('No recommended habits found in parsed content')
                     const storedAnalyses = JSON.parse(
                         localStorage.getItem(`analyses_${patientId}`) || '[]'
                     )
+                    console.log('Stored analyses:', storedAnalyses)
 
-                    // Se não houver dados no localStorage, tenta buscar da API
-                    if (storedAnalyses.length === 0) {
-                        const response = await getAnalyses(patientId)
-                        if (response.analyses && response.analyses.length > 0) {
-                            const latestAnalysis = response.analyses[response.analyses.length - 1]
-                            parsedContent = typeof latestAnalysis.content === 'string'
-                                ? JSON.parse(latestAnalysis.content)
-                                : latestAnalysis.content
-                        }
-                    } else {
+                    if (storedAnalyses.length > 0) {
                         const latestAnalysis = storedAnalyses[storedAnalyses.length - 1]
-                        parsedContent = typeof latestAnalysis.content === 'string'
-                            ? JSON.parse(latestAnalysis.content)
-                            : latestAnalysis.content
+                        parsedContent = latestAnalysis.content || latestAnalysis
+                        console.log('Using latest analysis:', parsedContent)
                     }
                 }
 
-                if (!parsedContent || !parsedContent.recommended_habits) {
+                if (!parsedContent?.recommended_habits) {
+                    console.log('Still no recommended habits found')
                     setError('No habits recommendations found')
+                    navigate('/form')  // <-- Esta é provavelmente a linha que está causando o problema
                     return
                 }
 
