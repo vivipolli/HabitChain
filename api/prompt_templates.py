@@ -25,13 +25,13 @@ INSTRUCTIONS:
 - Scientific basis: reference or evidence supporting this habit
 
 RESPONSE FORMAT:
+GENERAL:
 [Behavioral analysis, more than 3 paragraphs]
 
-SUGGESTED HABITS:
-
-1. [Habit name]
-Description: [brief description]
-How to implement: [practical steps]
-Scientific basis: [reference or evidence]
+HABITS:
+1. **[Habit name]**
+   - **Description:** [brief description]
+   - **Implementation:** [detailed steps]
+   - **Scientific Basis:** [reference or evidence]
 
 [Repeat format for each suggested habit]""") 

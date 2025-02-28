@@ -133,70 +133,48 @@ def format_ai_response(content: str) -> dict:
     Format the AI response into a structured JSON format.
     """
     try:
-        parts = content.split("### Habit")
+        # Split the content into general analysis and habits
+        parts = content.split("Habits:")
         
-        analysis_parts = parts[0].split("\n\n")
-        general_analysis = analysis_parts[-1] if len(analysis_parts) > 2 else parts[0]
+        # Capture the general analysis
+        general_analysis = parts[0].replace("GENERAL:", "").strip() if len(parts) > 0 else content.strip()
         
         habits = []
         if len(parts) > 1:
-            for i, habit_text in enumerate(parts[1:], 1):
-                try:
-                    lines = habit_text.strip().split("\n")
+            habit_sections = parts[1].strip().split("\n\n")
+            for section in habit_sections:
+                if section.strip():
+                    lines = section.strip().split("\n")
                     
-                    habit_name = lines[0].split(": ", 1)[-1].strip()
+                    # Ensure there are enough lines to extract habit details
+                    if len(lines) < 4:
+                        logger.warning("Incomplete habit section found, skipping.")
+                        continue
                     
-                    desc_line = next((l for l in lines if "Description:" in l), "")
-                    description = desc_line.replace("**Description:** ", "").strip()
+                    # Extract habit details
+                    habit_name = lines[0].strip().replace("**", "")
+                    description = lines[1].split("**Description:** ")[-1].strip() if "**Description:**" in lines[1] else "No description provided"
                     
                     implementation = []
-                    for line in lines:
-                        if line.strip().startswith(("1. ", "2. ", "3. ")):
+                    for line in lines[2:]:
+                        if line.strip().startswith("**Implementation:**"):
+                            continue
+                        if line.strip().startswith("1. "):
                             step = line.strip().split(". ", 1)[-1]
                             implementation.append(step)
                     
-                    basis_line = next((l for l in lines if "Basis:" in l), "")
-                    scientific_basis = basis_line.replace("- **Basis:** ", "").strip()
+                    scientific_basis = lines[-1].split("**Scientific Basis:** ")[-1].strip() if "**Scientific Basis:**" in lines[-1] else "No scientific basis provided"
                     
                     habit = {
-                        "name": habit_name or "Habit",
-                        "description": description or "Practice this habit regularly",
-                        "implementation": implementation or ["Start small", "Be consistent", "Track progress"],
-                        "scientific_basis": scientific_basis or "Based on behavioral psychology principles"
+                        "name": habit_name,
+                        "description": description,
+                        "implementation": implementation,
+                        "scientific_basis": scientific_basis
                     }
                     habits.append(habit)
-                    
-                except Exception as e:
-                    continue
-        else:
-            logger.warning("No habits found in the AI response")
-        
-        if not habits:
-            habits = [
-                {
-                    "name": "Gradual Exposure",
-                    "description": "Start with small, manageable steps",
-                    "implementation": [
-                        "Begin with brief interactions",
-                        "Practice in comfortable settings",
-                        "Gradually increase challenge"
-                    ],
-                    "scientific_basis": "Based on exposure therapy and behavioral activation"
-                },
-                {
-                    "name": "Self-Monitoring",
-                    "description": "Track your progress and patterns",
-                    "implementation": [
-                        "Keep a daily log",
-                        "Note triggers and responses",
-                        "Review and adjust strategies"
-                    ],
-                    "scientific_basis": "Based on cognitive behavioral therapy principles"
-                }
-            ]
         
         formatted_response = {
-            "general_analysis": general_analysis.strip(),
+            "general_analysis": general_analysis,
             "recommended_habits": habits
         }
         
@@ -206,14 +184,7 @@ def format_ai_response(content: str) -> dict:
         logger.error(f"Error formatting response: {str(e)}", exc_info=True)
         return {
             "general_analysis": content,
-            "recommended_habits": [
-                {
-                    "name": "Default Habit",
-                    "description": "A basic habit to get started",
-                    "implementation": ["Start small", "Be consistent", "Track progress"],
-                    "scientific_basis": "Based on behavioral psychology principles"
-                }
-            ]
+            "recommended_habits": []
         }
 
 # Routes
