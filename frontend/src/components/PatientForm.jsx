@@ -54,8 +54,19 @@ export function PatientForm() {
             const response = await analyzeBehavior(analysisData)
 
             if (response.analysis) {
-                // Salvar a análise mais recente para exibição imediata
-                localStorage.setItem('currentAnalysis', JSON.stringify(response.analysis))
+                // Salvar com a chave correta 'analysisResults'
+                localStorage.setItem('analysisResults', JSON.stringify(response.analysis))
+
+                // Também salvar no histórico de análises do paciente
+                const storedAnalyses = JSON.parse(
+                    localStorage.getItem(`analyses_${patientId}`) || '[]'
+                )
+                storedAnalyses.push(response.analysis)
+                localStorage.setItem(
+                    `analyses_${patientId}`,
+                    JSON.stringify(storedAnalyses)
+                )
+
                 navigate('/analysis')
             } else {
                 throw new Error('No analysis results received')
