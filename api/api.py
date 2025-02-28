@@ -249,7 +249,6 @@ async def create_viewing_key(patient_id: str):
             memo="Create viewing key",
         )
         
-        # No Secret Network, a viewing key é sempre "test_key" no nosso contrato
         viewing_key = "test_key"
         
         return {"viewing_key": viewing_key}
