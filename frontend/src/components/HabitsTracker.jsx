@@ -17,37 +17,60 @@ export function HabitsTracker() {
         async function fetchAnalysis() {
             try {
                 const patientId = localStorage.getItem('patientId')
-                const viewingKey = localStorage.getItem('viewingKey')
 
-                if (!patientId || !viewingKey) {
+                if (!patientId) {
                     navigate('/form')
                     return
                 }
 
-                const response = await getAnalyses(patientId, viewingKey)
-
-                if (!response.analyses || response.analyses.length === 0) {
-                    navigate('/form')
-                    return
-                }
-
-                const latestAnalysis = response.analyses[response.analyses.length - 1]
-
+                // Primeiro, tenta pegar do analysisResults do localStorage
+                let analysisResults = localStorage.getItem('analysisResults')
                 let parsedContent
-                try {
-                    parsedContent = JSON.parse(latestAnalysis.content)
-                } catch (err) {
-                    console.error('Error parsing analysis content:', err)
-                    setError('Invalid analysis format')
-                    return
+
+                if (analysisResults) {
+                    try {
+                        // Parse do JSON string externo
+                        const parsedResults = JSON.parse(analysisResults)
+                        parsedContent = parsedResults
+                    } catch (err) {
+                        console.error('Error parsing analysisResults:', err)
+                    }
                 }
 
-                if (!parsedContent.recommended_habits || parsedContent.recommended_habits.length === 0) {
+                // Se não encontrou no analysisResults, tenta no analyses_patientId
+                if (!parsedContent) {
+                    const storedAnalyses = JSON.parse(
+                        localStorage.getItem(`analyses_${patientId}`) || '[]'
+                    )
+
+                    // Se não houver dados no localStorage, tenta buscar da API
+                    if (storedAnalyses.length === 0) {
+                        const response = await getAnalyses(patientId)
+                        if (response.analyses && response.analyses.length > 0) {
+                            const latestAnalysis = response.analyses[response.analyses.length - 1]
+                            parsedContent = typeof latestAnalysis.content === 'string'
+                                ? JSON.parse(latestAnalysis.content)
+                                : latestAnalysis.content
+                        }
+                    } else {
+                        const latestAnalysis = storedAnalyses[storedAnalyses.length - 1]
+                        parsedContent = typeof latestAnalysis.content === 'string'
+                            ? JSON.parse(latestAnalysis.content)
+                            : latestAnalysis.content
+                    }
+                }
+
+                if (!parsedContent || !parsedContent.recommended_habits) {
                     setError('No habits recommendations found')
                     return
                 }
 
-                const formattedHabits = parsedContent.recommended_habits.map((habit, index) => ({
+                // Remove o último item se for as referências
+                const habits = parsedContent.recommended_habits.filter(habit =>
+                    !habit.name.startsWith('###')
+                )
+
+                const formattedHabits = habits.map((habit, index) => ({
                     id: index + 1,
                     title: habit.name || 'Unnamed Habit',
                     description: habit.description || 'No description available',
