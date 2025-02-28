@@ -24,7 +24,7 @@ INSTRUCTIONS:
 - Implementation: detailed step-by-step execution
 - Scientific basis: reference or evidence supporting this habit
 
-RESPONSE FORMAT (please use this format and the exact keywords):
+RESPONSE FORMAT (please use this format and the exact keywords - DO NOT CHANGE THE WORD 'Habits:'):
 GENERAL:
 [Behavioral analysis, more than 3 paragraphs]
 
@@ -34,4 +34,6 @@ Habits:
    - **Implementation:** [detailed steps]
    - **Scientific Basis:** [reference or evidence]
 
-[Repeat format for each suggested habit]""") 
+[Repeat format for each suggested habit]
+
+IMPORTANT: You MUST use exactly "Habits:" as the section header for the habits list. Do not use any other variations like "Recommended habits", "Suggested habits", etc. The exact keyword "Habits:" is required for proper parsing of the response.""") 
