@@ -54,7 +54,8 @@ export function PatientForm() {
             const response = await analyzeBehavior(analysisData)
 
             if (response.analysis) {
-                localStorage.setItem('analysisResults', JSON.stringify(response.analysis))
+                // Salvar a análise mais recente para exibição imediata
+                localStorage.setItem('currentAnalysis', JSON.stringify(response.analysis))
                 navigate('/analysis')
             } else {
                 throw new Error('No analysis results received')

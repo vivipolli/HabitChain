@@ -24,11 +24,11 @@ INSTRUCTIONS:
 - Implementation: detailed step-by-step execution
 - Scientific basis: reference or evidence supporting this habit
 
-RESPONSE FORMAT:
+RESPONSE FORMAT (please use this format and the exact keywords):
 GENERAL:
 [Behavioral analysis, more than 3 paragraphs]
 
-HABITS:
+Habits:
 1. **[Habit name]**
    - **Description:** [brief description]
    - **Implementation:** [detailed steps]

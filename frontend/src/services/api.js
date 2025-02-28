@@ -19,7 +19,6 @@ export async function createViewingKey(patientId) {
     }
 
     const data = await response.json();
-    // Store the viewing key in localStorage for future use
     localStorage.setItem(`viewing_key_${patientId}`, data.viewing_key);
     return data.viewing_key;
   } catch (error) {
@@ -36,7 +35,6 @@ export async function analyzeBehavior(behaviorData) {
       `viewing_key_${behaviorData.patient_id}`
     );
     if (!viewingKey) {
-      // If no viewing key exists, create one
       viewingKey = await createViewingKey(behaviorData.patient_id);
     }
 
@@ -58,7 +56,18 @@ export async function analyzeBehavior(behaviorData) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    // Salvar a análise no localStorage
+    const storedAnalyses = JSON.parse(
+      localStorage.getItem(`analyses_${behaviorData.patient_id}`) || "[]"
+    );
+    storedAnalyses.push(data.analysis);
+    localStorage.setItem(
+      `analyses_${behaviorData.patient_id}`,
+      JSON.stringify(storedAnalyses)
+    );
+
+    return data;
   } catch (error) {
     console.error("Error analyzing behavior:", error);
     throw error;
@@ -91,7 +100,6 @@ export async function getAnalyses(patientId) {
     });
 
     if (!response.ok) {
-      // If viewing key is invalid, try to create a new one and retry
       if (response.status === 401 || response.status === 403) {
         viewingKey = await createViewingKey(patientId);
         const retryResponse = await fetch(
@@ -107,19 +115,29 @@ export async function getAnalyses(patientId) {
         if (!retryResponse.ok) {
           throw new Error(`HTTP error! status: ${retryResponse.status}`);
         }
-        return await retryResponse.json();
+        const data = await retryResponse.json();
+        return data;
       }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    return {
-      analyses: data.analyses || [],
-    };
+
+    // Se não houver análises do contrato, tente pegar do localStorage
+    if (!data.analyses || data.analyses.length === 0) {
+      const storedAnalyses = JSON.parse(
+        localStorage.getItem(`analyses_${patientId}`) || "[]"
+      );
+      return { analyses: storedAnalyses };
+    }
+
+    return data;
   } catch (error) {
     console.error("Error fetching analyses:", error);
-    return {
-      analyses: [],
-    };
+    // Em caso de erro, retorne as análises do localStorage
+    const storedAnalyses = JSON.parse(
+      localStorage.getItem(`analyses_${patientId}`) || "[]"
+    );
+    return { analyses: storedAnalyses };
   }
 }
