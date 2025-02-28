@@ -94,28 +94,26 @@ rustup target add wasm32-unknown-unknown
 ### Build Contract
 
 ```sh
-cargo build --release --target wasm32-unknown-unknown
-cp target/wasm32-unknown-unknown/release/secret_mood.wasm .
-gzip -k secret_mood.wasm
+RUSTFLAGS='-C link-arg=-s' cargo build --release --target wasm32-unknown-unknown
 ```
 
 ### Optimize Contract
 
 ```sh
 docker run --rm -v "$(pwd)":/code \
- --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
- --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
- cosmwasm/rust-optimizer:0.12.13
-mv secret_mood.wasm.gz contract.wasm.gz
+  --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
+  --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+  cosmwasm/rust-optimizer:0.12.13
 ```
 
 ### Deploy Contract
 
 ```sh
 # Upload
-secretcli tx compute store contract.wasm.gz --from app \
-  --chain-id pulsar-3 --node https://pulsar.rpc.secretnodes.com \
-  --gas-prices=0.25uscrt --gas=1000000 -y
+secretcli tx compute store artifacts/secret_contract.wasm --from app \
+  --chain-id pulsar-3 \
+  --gas-prices=0.25uscrt --gas=3000000 \
+  --node https://pulsar.rpc.secretnodes.com -y
 
 # Get code ID
 secretcli query tx <TX_HASH> --chain-id pulsar-3 \
@@ -123,9 +121,12 @@ secretcli query tx <TX_HASH> --chain-id pulsar-3 \
 
 # Instantiate
 secretcli tx compute instantiate <CODE_ID> '{}' --from app \
-  --label "behavioral-analysis" --chain-id pulsar-3 \
+  --label "behav-analysis" --chain-id pulsar-3 \
   --node https://pulsar.rpc.secretnodes.com \
   --gas-prices=0.25uscrt --gas=700000 -y
+
+# Let's check that the instantiate command worked:
+secretcli query compute list-contract-by-code <CODE_ID> --chain-id pulsar-3 --node https://pulsar.rpc.secretnodes.com
 ```
 
 ---

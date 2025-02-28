@@ -237,9 +237,22 @@ async def analyze_behavior(data: BehaviorData):
 @app.post("/create-viewing-key/{patient_id}")
 async def create_viewing_key(patient_id: str):
     try:
-        # In production, this would interact with the contract
-        # For now, return a static key for development
-        return {"viewing_key": STATIC_VIEWING_KEY}
+        msg = {
+            "create_viewing_key": {
+                "patient_id": patient_id
+            }
+        }
+        
+        tx = wallet.execute_tx(
+            CONTRACT_ADDRESS,
+            msg,
+            memo="Create viewing key",
+        )
+        
+        # No Secret Network, a viewing key é sempre "test_key" no nosso contrato
+        viewing_key = "test_key"
+        
+        return {"viewing_key": viewing_key}
         
     except Exception as e:
         logger.error(f"Viewing key creation error: {str(e)}", exc_info=True)
@@ -248,54 +261,50 @@ async def create_viewing_key(patient_id: str):
 @app.get("/analyses/{patient_id}", response_model=GetAnalysesResponse)
 async def get_analyses(patient_id: str, viewing_key: str):
     try:
-        
-        try:
-            result = secret.wasm.contract_query(
-                contract_address=CONTRACT_ADDRESS,
-                query={
-                    "get_analyses": {
-                        "patient_id": patient_id,
-                        "viewing_key": STATIC_VIEWING_KEY
-                    }
+        # Consultar análises usando a viewing key fornecida
+        result = secret.wasm.contract_query(
+            contract_address=CONTRACT_ADDRESS,
+            query={
+                "get_analyses": {
+                    "patient_id": patient_id,
+                    "viewing_key": viewing_key  # Usar a viewing key fornecida, não a estática
                 }
-            )
-
+            }
+        )
+        
+        logger.info(f"Raw contract query result: {result}")
+        
+        if result and len(result) > 0:
+            for analysis in result:
+                content = json.loads(analysis["content"])
+                if not content.get("recommended_habits"):
+                    content["recommended_habits"] = [
+                        {
+                            "name": "Gradual Exposure",
+                            "description": "Start with small, manageable social interactions",
+                            "implementation": [
+                                "Begin with brief interactions",
+                                "Practice with trusted friends/family",
+                                "Gradually increase duration and complexity"
+                            ],
+                            "scientific_basis": "Based on exposure therapy principles"
+                        },
+                        {
+                            "name": "Self-Compassion Practice",
+                            "description": "Develop a kinder inner dialogue",
+                            "implementation": [
+                                "Notice negative self-talk",
+                                "Challenge unrealistic thoughts",
+                                "Practice positive self-affirmations"
+                            ],
+                            "scientific_basis": "Based on cognitive behavioral therapy"
+                        }
+                    ]
+                    analysis["content"] = json.dumps(content)
             
-            if result and len(result) > 0:
-                for analysis in result:
-                    content = json.loads(analysis["content"])
-                    if not content.get("recommended_habits"):
-                        content["recommended_habits"] = [
-                            {
-                                "name": "Gradual Exposure",
-                                "description": "Start with small, manageable social interactions",
-                                "implementation": [
-                                    "Begin with brief interactions",
-                                    "Practice with trusted friends/family",
-                                    "Gradually increase duration and complexity"
-                                ],
-                                "scientific_basis": "Based on exposure therapy principles"
-                            },
-                            {
-                                "name": "Self-Compassion Practice",
-                                "description": "Develop a kinder inner dialogue",
-                                "implementation": [
-                                    "Notice negative self-talk",
-                                    "Challenge unrealistic thoughts",
-                                    "Practice positive self-affirmations"
-                                ],
-                                "scientific_basis": "Based on cognitive behavioral therapy"
-                            }
-                        ]
-                        analysis["content"] = json.dumps(content)
-                
-                return {"analyses": result}
-            
-        except Exception as contract_error:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error retrieving analyses from contract: {str(contract_error)}"
-            )
+            return {"analyses": result}
+        
+        return {"analyses": []}
             
     except Exception as e:
         logger.error(f"Fetching analyses error: {str(e)}", exc_info=True)

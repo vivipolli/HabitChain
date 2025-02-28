@@ -38,12 +38,10 @@ export function PatientForm() {
 
         try {
             const patientId = generatePatientId()
-
-            const keyResponse = await createViewingKey(patientId)
-            const viewingKey = keyResponse.viewing_key
-
             localStorage.setItem('patientId', patientId)
-            localStorage.setItem('viewingKey', viewingKey)
+
+            // Criar viewing key antes de enviar a análise
+            await createViewingKey(patientId)
 
             const analysisData = {
                 patient_id: patientId,
