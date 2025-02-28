@@ -255,7 +255,7 @@ async def get_analyses(patient_id: str, viewing_key: str):
                 query={
                     "get_analyses": {
                         "patient_id": patient_id,
-                        "viewing_key": viewing_key
+                        "viewing_key": STATIC_VIEWING_KEY
                     }
                 }
             )
