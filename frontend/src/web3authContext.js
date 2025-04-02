@@ -7,8 +7,12 @@ const clientId =
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0x1",
+  chainId: "0xaa36a7",
   rpcTarget: import.meta.env.VITE_RPC_TARGET,
+  displayName: "Sepolia Testnet",
+  blockExplorer: "https://sepolia.etherscan.io",
+  ticker: "ETH",
+  tickerName: "Ethereum",
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
