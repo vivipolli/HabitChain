@@ -8,7 +8,8 @@ const clientId =
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0x1",
-  rpcTarget: import.meta.env.VITE_RPC_TARGET || "https://rpc.ankr.com/eth",
+  rpcTarget:
+    import.meta.env.VITE_RPC_TARGET || "https://ethereum.publicnode.com",
 };
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
